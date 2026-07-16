@@ -32,9 +32,9 @@
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --maroon: #C14066;
+      --maroon: #8A2247;
       --maroon-deep: #7C183E;
-      --maroon-bright: #DD5C82;
+      --maroon-bright: #9E2E52;
       --bg: #14171A;
       --surface: #1B1F23;
       --line: #2C3236;
@@ -47,7 +47,7 @@
     }
   }
   :root[data-theme="dark"] {
-    --maroon: #C14066; --maroon-deep: #7C183E; --maroon-bright: #DD5C82;
+    --maroon: #8A2247; --maroon-deep: #7C183E; --maroon-bright: #9E2E52;
     --bg: #14171A; --surface: #1B1F23; --line: #2C3236; --ink: #EEF0F1;
     --steel: #A7AFB4; --steel-soft: #78828A; --amber: #E8B450; --amber-soft: #2E2410;
     --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.4);
@@ -312,6 +312,75 @@
   }
   .status-pill.open { background: var(--amber-soft); color: var(--amber); }
   .status-pill.filled { background: color-mix(in srgb, var(--maroon) 12%, transparent); color: var(--maroon); }
+  .status-pill.planning { background: var(--amber-soft); color: var(--amber); }
+
+  /* events */
+  .events-list { display: flex; flex-direction: column; gap: 0.9rem; }
+  .event-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .event-date {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--steel-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    text-align: center;
+    min-width: 5.5rem;
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .event-body { flex: 1; }
+  .event-body h4 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 0.95rem; margin: 0 0 0.3rem; letter-spacing: 0.01em; }
+  .event-body p { margin: 0; font-size: 0.85rem; color: var(--steel); }
+  @media (max-width: 560px) { .event-card { flex-direction: column; align-items: flex-start; } }
+
+  /* podcast */
+  .podcast-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (max-width: 700px) { .podcast-grid { grid-template-columns: 1fr; } }
+  .podcast-cover {
+    width: 160px; height: 160px;
+    border-radius: 12px;
+    background: linear-gradient(155deg, var(--maroon) 0%, var(--maroon-deep) 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+  .podcast-cover::before, .podcast-cover::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.35);
+  }
+  .podcast-cover::before { width: 70%; height: 70%; top: 15%; left: 15%; }
+  .podcast-cover::after { width: 38%; height: 38%; top: 31%; left: 31%; background: rgba(255,255,255,0.12); }
+  .podcast-title { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-weight: 700; letter-spacing: 0.02em; font-size: 1.5rem; margin: 0 0 0.5rem; }
+  .podcast-desc { color: var(--steel); margin: 0 0 1.25rem; max-width: 52ch; }
+  .podcast-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .podcast-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    border: 1px dashed var(--line);
+    color: var(--steel-soft);
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
 
   /* contact / footer */
   .contact-band {
@@ -353,6 +422,8 @@
     <div class="links">
       <a href="#mission">Mission</a>
       <a href="#organization">Organization</a>
+      <a href="#events">Events</a>
+      <a href="#podcast">Podcast</a>
       <a href="#orgs">Sub-Orgs</a>
       <a href="#involved">Get Involved</a>
       <a class="cta" href="#contact">Contact TSA</a>
@@ -463,6 +534,67 @@
           <div class="tier-label"><span class="mono-label">Tier 3 — General Membership</span><span class="line"></span></div>
           <div class="tier-cards">
             <span class="node open">Every Department of Transportation student — automatic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="events">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="mono-label">Events</span>
+        <h2 class="display">What's Coming Up</h2>
+        <p>TSA's event calendar is being built alongside the Executive Board — as the
+          department-wide event schedule firms up, it'll be listed here first.</p>
+      </div>
+      <div class="events-list">
+        <div class="event-card">
+          <span class="event-date">Date TBD</span>
+          <div class="event-body">
+            <h4>TSA Kickoff — General Body Meeting</h4>
+            <p>Introducing the Executive Board, the Council of Org Reps, and what TSA is to every Department of Transportation student.</p>
+          </div>
+          <span class="status-pill planning">Planning</span>
+        </div>
+        <div class="event-card">
+          <span class="event-date">Date TBD</span>
+          <div class="event-body">
+            <h4>Council of Organization Reps — First Session</h4>
+            <p>First coordination meeting with a representative from every affiliated student org.</p>
+          </div>
+          <span class="status-pill planning">Planning</span>
+        </div>
+        <div class="event-card">
+          <span class="event-date">Date TBD</span>
+          <div class="event-body">
+            <h4>Department Career &amp; Industry Mixer</h4>
+            <p>A department-wide event connecting students across every transportation discipline with industry contacts.</p>
+          </div>
+          <span class="status-pill planning">Planning</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="podcast">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="mono-label">Podcast</span>
+        <h2 class="display">Connecting The Dots</h2>
+        <p>TSA's official podcast — one more way we connect every corner of the department.</p>
+      </div>
+      <div class="podcast-grid">
+        <div class="podcast-cover" aria-hidden="true"></div>
+        <div>
+          <h3 class="podcast-title">Connecting The Dots</h3>
+          <p class="podcast-desc">Conversations across the Department of Transportation —
+            careers, industry insight, and the people and organizations connecting logistics,
+            maritime, aviation, and transit at TSU. Episodes launching soon.</p>
+          <div class="podcast-links">
+            <span class="podcast-link">Spotify — Coming soon</span>
+            <span class="podcast-link">Apple Podcasts — Coming soon</span>
+            <span class="podcast-link">YouTube — Coming soon</span>
           </div>
         </div>
       </div>
