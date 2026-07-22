@@ -1,7 +1,7 @@
 # TSA Website
 
 The public visibility site for TSU's Transportation Student Association — the umbrella
-student organization for the Department of Transportation. Not a Vantage AI client project;
+student organization for the Department of Transportation. Not a Krogix client project;
 this is Milo's own school organization as its president.
 
 ## Current state
