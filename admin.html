@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSA Admin — Send Notification</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root { --maroon: #7C183E; --maroon-deep: #4E0E27; --bg: #F4F5F6; --surface: #FFFFFF; --line: #D8DCDE; --ink: #14171A; --steel: #4C5A61; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 1.5rem;
+  }
+  .card { width: 100%; max-width: 440px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 2rem; }
+  h1 { font-size: 1.2rem; margin: 0 0 0.3rem; color: var(--maroon); }
+  p.sub { margin: 0 0 1.5rem; font-size: 0.85rem; color: var(--steel); }
+  label { display: block; font-size: 0.8rem; font-weight: 600; margin: 1rem 0 0.35rem; }
+  input, textarea {
+    width: 100%; padding: 0.6rem 0.7rem; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 0.9rem; font-family: inherit; color: var(--ink); background: var(--surface);
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  button {
+    margin-top: 1.5rem; width: 100%; padding: 0.7rem; border: none; border-radius: 8px;
+    background: var(--maroon); color: white; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+  }
+  button:hover { background: var(--maroon-deep); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  #status { margin-top: 1rem; font-size: 0.85rem; white-space: pre-wrap; }
+  #status.error { color: #B3261E; }
+  #status.ok { color: #1E6B3C; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Send TSA Notification</h1>
+    <p class="sub">Push goes out to every phone that's installed the app and enabled notifications.</p>
+
+    <label for="secret">Admin Key</label>
+    <input type="password" id="secret" autocomplete="off">
+
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="e.g. General Body Meeting Tonight">
+
+    <label for="body">Message</label>
+    <textarea id="body" placeholder="Details members should see in the notification"></textarea>
+
+    <label for="url">Link (optional)</label>
+    <input type="text" id="url" placeholder="/#events">
+
+    <button id="send">Send Notification</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    var secretInput = document.getElementById('secret');
+    var savedSecret = sessionStorage.getItem('tsaAdminSecret');
+    if (savedSecret) secretInput.value = savedSecret;
+
+    document.getElementById('send').addEventListener('click', function () {
+      var secret = secretInput.value.trim();
+      var title = document.getElementById('title').value.trim();
+      var body = document.getElementById('body').value.trim();
+      var url = document.getElementById('url').value.trim();
+      var statusEl = document.getElementById('status');
+      var btn = document.getElementById('send');
+
+      statusEl.className = '';
+      statusEl.textContent = '';
+
+      if (!secret || !title || !body) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Admin key, title, and message are all required.';
+        return;
+      }
+
+      sessionStorage.setItem('tsaAdminSecret', secret);
+      btn.disabled = true;
+      statusEl.textContent = 'Sending…';
+
+      fetch('/.netlify/functions/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + secret,
+        },
+        body: JSON.stringify({ title: title, body: body, url: url || undefined }),
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+          return res.json();
+        })
+        .then(function (data) {
+          statusEl.className = 'ok';
+          statusEl.textContent = 'Sent to ' + data.sent + ' of ' + data.total + ' subscribers.' +
+            (data.pruned ? ' (' + data.pruned + ' expired subscriptions removed.)' : '');
+        })
+        .catch(function (err) {
+          statusEl.className = 'error';
+          statusEl.textContent = err.message;
+        })
+        .finally(function () {
+          btn.disabled = false;
+        });
+    });
+  </script>
+</body>
+</html>

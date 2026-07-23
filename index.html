@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transportation Student Association — Texas Southern University</title>
 <meta name="description" content="TSA is the umbrella student organization for the Texas Southern University Department of Transportation — connecting every department org and student into one network.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7C183E">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TSA">
 <style>
   @font-face {
     font-family: 'Oswald';
@@ -407,6 +414,17 @@
   footer.site .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
   footer.site a { text-decoration: none; color: var(--steel); }
   footer.site a:hover { color: var(--maroon); }
+
+  /* ---------- Install / notifications banner ---------- */
+  .install-banner { display: none; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--maroon) 6%, var(--surface)); }
+  .install-banner.show { display: block; }
+  .install-banner .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.8rem 0; flex-wrap: wrap; }
+  .install-banner p { margin: 0; font-size: 0.85rem; color: var(--steel); }
+  .install-banner strong { color: var(--maroon); font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.03em; }
+  .install-banner .actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+  .install-banner button.cta, .install-banner button.btn-ghost { border: none; cursor: pointer; font-family: inherit; }
+  .install-banner .ios-hint { font-size: 0.8rem; color: var(--steel-soft); }
+  .install-banner .dismiss { background: none; border: none; color: var(--steel-soft); font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0.2rem 0.5rem; }
 </style>
 </head>
 <body>
@@ -430,6 +448,18 @@
     </div>
   </nav>
 </header>
+
+<div class="install-banner" id="installBanner">
+  <div class="wrap">
+    <p><strong>Get the TSA app</strong> — install to your home screen for quick access and event alerts.</p>
+    <div class="actions">
+      <button class="cta" id="installBtn" type="button" hidden>Install App</button>
+      <button class="btn-ghost" id="notifyBtn" type="button" hidden>Enable Notifications</button>
+      <span class="ios-hint" id="iosInstallHint" hidden>Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+      <button class="dismiss" id="dismissBanner" type="button" aria-label="Dismiss">&times;</button>
+    </div>
+  </div>
+</div>
 
 <main id="top">
 
@@ -663,5 +693,101 @@
   </div>
 </footer>
 
+<script>
+(function () {
+  var VAPID_PUBLIC_KEY = "BLWPy7CNEzdZs8bdRen2qz2W_l2yeZyhbXiOhWUxBeCDf_bIIntfsjswcyXoZ59LD1Cip41KeTqUeZqGbFfPEDM";
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  var banner = sessionStorage.getItem('tsaBannerDismissed') ? null : document.getElementById('installBanner');
+  var installBtn = document.getElementById('installBtn');
+  var notifyBtn = document.getElementById('notifyBtn');
+  var iosHint = document.getElementById('iosInstallHint');
+  var dismissBtn = document.getElementById('dismissBanner');
+
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (banner && !isStandalone) {
+      installBtn.hidden = false;
+      banner.classList.add('show');
+    }
+  });
+
+  window.addEventListener('appinstalled', function () {
+    if (installBtn) installBtn.hidden = true;
+    deferredPrompt = null;
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+  }
+
+  if (banner && isIOS && !isStandalone) {
+    iosHint.hidden = false;
+    banner.classList.add('show');
+  }
+
+  if (banner && isStandalone && 'PushManager' in window) {
+    notifyBtn.hidden = false;
+    banner.classList.add('show');
+  }
+
+  if (notifyBtn) {
+    notifyBtn.addEventListener('click', function () {
+      Notification.requestPermission().then(function (permission) {
+        if (permission !== 'granted') return;
+        navigator.serviceWorker.ready.then(function (registration) {
+          registration.pushManager
+            .subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+            })
+            .then(function (subscription) {
+              return fetch('/.netlify/functions/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(subscription),
+              });
+            })
+            .then(function () {
+              notifyBtn.textContent = 'Notifications On';
+              notifyBtn.disabled = true;
+            });
+        });
+      });
+    });
+  }
+
+  if (dismissBtn && banner) {
+    dismissBtn.addEventListener('click', function () {
+      banner.classList.remove('show');
+      sessionStorage.setItem('tsaBannerDismissed', '1');
+    });
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+    for (var i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+})();
+</script>
 </body>
 </html>
