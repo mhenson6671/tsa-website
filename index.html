@@ -388,6 +388,13 @@
     font-size: 0.8rem;
     font-weight: 600;
   }
+  a.podcast-link.active {
+    border-style: solid;
+    border-color: var(--maroon);
+    color: var(--maroon);
+    text-decoration: none;
+  }
+  a.podcast-link.active:hover { background: color-mix(in srgb, var(--maroon) 6%, var(--surface)); }
 
   /* contact / footer */
   .contact-band {
@@ -620,11 +627,11 @@
           <h3 class="podcast-title">Connecting The Dots</h3>
           <p class="podcast-desc">Conversations across the Department of Transportation —
             careers, industry insight, and the people and organizations connecting logistics,
-            maritime, aviation, and transit at TSU. Episodes launching soon.</p>
+            maritime, aviation, and transit at TSU. New episodes on YouTube now.</p>
           <div class="podcast-links">
             <span class="podcast-link">Spotify — Coming soon</span>
             <span class="podcast-link">Apple Podcasts — Coming soon</span>
-            <span class="podcast-link">YouTube — Coming soon</span>
+            <a class="podcast-link active" href="https://youtube.com/@theconnectingthedotspodcast?si=ZY0XMhAK2XDyAXlQ" target="_blank" rel="noopener">YouTube</a>
           </div>
         </div>
       </div>

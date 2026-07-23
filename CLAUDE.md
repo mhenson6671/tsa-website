@@ -37,9 +37,9 @@ them only as roles/orgs are actually filled/confirmed.
 Nav order: Mission → Organization → Events → Podcast → Sub-Orgs → Get Involved → Contact CTA.
 Events and the "Connecting The Dots" podcast section both follow the same honesty rule as
 Sub-Orgs/Get Involved — no invented dates, episode titles, or platform links. Events are
-listed with real (planned) milestones but "Date TBD" and a "Planning" status pill; podcast
-links are placeholder "Coming soon" labels, not real hrefs, until Milo provides actual
-Spotify/Apple/YouTube links and real episode info.
+listed with real (planned) milestones but "Date TBD" and a "Planning" status pill. Podcast:
+YouTube is live and linked (real channel, real episodes) — Spotify and Apple Podcasts stay
+"Coming soon" placeholders until Milo provides those actual links too.
 
 ## Content source of truth
 
